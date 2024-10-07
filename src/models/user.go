@@ -29,7 +29,6 @@ type UserUpdateSchema struct {
     Email    *string `json:"email,omitempty" description:"Email of the user"`
 }
 
-
 type NotFountResponse struct {
     Msg string `json:"msg"`
 }

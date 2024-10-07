@@ -42,7 +42,44 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.NotFountResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete user by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users",
+                    "users"
+                ],
+                "summary": "Delete user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserResponse"
                         }
                     },
                     "400": {
@@ -64,7 +101,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.User": {
+        "models.UserResponse": {
             "type": "object",
             "properties": {
                 "age": {
@@ -74,7 +111,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "lastname": {
                     "type": "string"

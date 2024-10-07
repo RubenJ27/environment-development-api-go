@@ -4,14 +4,14 @@ definitions:
       msg:
         type: string
     type: object
-  models.User:
+  models.UserResponse:
     properties:
       age:
         type: integer
       email:
         type: string
       id:
-        type: string
+        type: integer
       lastname:
         type: string
       name:
@@ -21,6 +21,31 @@ info:
   contact: {}
 paths:
   /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+      summary: Delete user by ID
+      tags:
+      - users
+      - users
     get:
       consumes:
       - application/json
@@ -37,7 +62,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.UserResponse'
         "400":
           description: Bad Request
           schema:

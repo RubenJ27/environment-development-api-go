@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"development-environment-api-go-manager/src/api/rest"
 	"development-environment-api-go-manager/src/api/rest/routes"
 	"development-environment-api-go-manager/src/config"
 	"development-environment-api-go-manager/src/db"
@@ -29,12 +30,16 @@ func main() {
 
     // Crea una nueva instancia del repositorio de usuarios utilizando la conexión a la base de datos
     userRepo := repository.NewUserRepository(connBun)
+    // Crea una instancia de UserServiceApi
+    userServiceApi := rest.NewUserHandlers(userRepo)
 
     // Configura el servidor HTTP con las rutas necesarias y el repositorio de usuarios
     r := routes.GetServer(userRepo)
 
     // Configura la ruta para la documentación de Swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    // Configura la ruta para eliminar un usuario
+    r.DELETE("/users/:id", userServiceApi.DeleteUser)
 
     // Inicia el servidor HTTP en el puerto 8080
     r.Run()
