@@ -43,6 +43,12 @@ func main() {
 
     // Configura la ruta para creación de usuarios
     r.POST("/users", userServiceApi.CreateUser)
+
+    // Configura la ruta para actualizacion de usuarios
+    r.PUT("/users/:id", userServiceApi.UpdateUser)
+
+    // Configura la ruta para actualizaciones parciales de usuarios
+    r.PATCH("/users/:id", userServiceApi.PartialUpdateUser)
     
     // Configura la ruta para eliminar un usuario
     r.DELETE("/users/:id", userServiceApi.DeleteUser)

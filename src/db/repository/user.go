@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"development-environment-api-go-manager/src/models"
 	"errors"
 
@@ -70,6 +71,78 @@ func (userRepository *user) CreateUser(newUser models.UserCreateSchema) (*models
 
     // Insertar el nuevo usuario en la base de datos
     _, err := userRepository.con.NewInsert().Model(user).Exec(context.Background())
+    if err != nil {
+        return nil, err
+    }
+
+    // Crear una instancia de models.UserResponse para la respuesta
+    userResponse := &models.UserResponse{
+        ID:       user.ID,
+        Name:     user.Name,
+        Lastname: user.Lastname,
+        Age:      user.Age,
+        Email:    user.Email,
+    }
+
+    return userResponse, nil
+}
+
+func (userRepository *user) UpdateUser(id int64, updateUser models.UserUpdateSchema) (*models.UserResponse, error) {
+    // Verificar si el usuario existe
+    user := &models.UserEntity{}
+    err := userRepository.con.NewSelect().Model(user).Where("id = ?", id).Scan(context.Background())
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return nil, ErrUserNotFound
+        }
+        return nil, err
+    }
+
+    // Ejecutar la actualización
+    _, err = userRepository.con.NewUpdate().
+        Model(user).
+        Set("name = COALESCE(?, name)", updateUser.Name).
+        Set("lastname = COALESCE(?, lastname)", updateUser.Lastname).
+        Set("age = COALESCE(?, age)", updateUser.Age).
+        Set("email = COALESCE(?, email)", updateUser.Email).
+        Where("id = ?", id).
+        Exec(context.Background())
+    if err != nil {
+        return nil, err
+    }
+
+    // Crear una instancia de models.UserResponse para la respuesta
+    userResponse := &models.UserResponse{
+        ID:       user.ID,
+        Name:     *updateUser.Name,
+        Lastname: *updateUser.Lastname,
+        Age:      *updateUser.Age,
+        Email:    *updateUser.Email,
+    }
+
+    return userResponse, nil
+}
+
+func (userRepository *user) PartialUpdateUser(id int64, updateUser models.UserUpdateSchema) (*models.UserResponse, error) {
+    // Verificar si el usuario existe
+    user := &models.UserEntity{}
+    err := userRepository.con.NewSelect().Model(user).Where("id = ?", id).Scan(context.Background())
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return nil, ErrUserNotFound
+        }
+        return nil, err
+    }
+
+    // Ejecutar la actualización parcial
+    _, err = userRepository.con.NewUpdate().
+        Model(user).
+        Set("name = COALESCE(?, name)", updateUser.Name).
+        Set("lastname = COALESCE(?, lastname)", updateUser.Lastname).
+        Set("age = COALESCE(?, age)", updateUser.Age).
+        Set("email = COALESCE(?, email)", updateUser.Email).
+        Where("id = ?", id).
+        Exec(context.Background())
     if err != nil {
         return nil, err
     }

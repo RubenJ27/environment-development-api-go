@@ -3,6 +3,7 @@ package rest
 import (
 	"development-environment-api-go-manager/src/db/repository"
 	"development-environment-api-go-manager/src/models"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,6 +15,8 @@ type UserRepository interface {
 	ReadUser(id int64) (*models.UserResponse, error)
 	DeleteUser(id int64) error
     CreateUser(user models.UserCreateSchema) (*models.UserResponse, error)
+    UpdateUser(id int64, user models.UserUpdateSchema) (*models.UserResponse, error)
+    PartialUpdateUser(id int64, user models.UserUpdateSchema) (*models.UserResponse, error)
 }
 
 type UserServiceApi struct {
@@ -135,3 +138,98 @@ func (usa *UserServiceApi) CreateUser(c *gin.Context) {
     c.JSON(http.StatusCreated, createdUser)
 }
 
+// @Tags users
+// @Summary Update an existing user
+// @Description Update an existing user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param   id    path    int64                   true  "User ID"
+// @Param   user  body    models.UserUpdateSchema true  "User Data"
+// @Success 200 {object} models.UserResponse
+// @Failure 400 {object} models.NotFountResponse
+// @Failure 404 {object} models.NotFountResponse
+// @Failure 500 {object} models.NotFountResponse
+// @Router /users/{id} [put]
+func (usa *UserServiceApi) UpdateUser(c *gin.Context) {
+    var updateUser models.UserUpdateSchema
+
+    // Obtener el ID del usuario desde los parámetros de la URL
+    id := c.Param("id")
+    userID, err := strconv.ParseInt(id, 10, 64)
+    if err != nil {
+        log.Println("Invalid user ID:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+
+    // Vincular el JSON recibido al modelo UserUpdateSchema
+    if err := c.ShouldBindJSON(&updateUser); err != nil {
+        log.Println("Error while binding JSON:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+        return
+    }
+
+    // Llamar al método UpdateUser del repositorio
+    updatedUser, err := usa.repository.UpdateUser(userID, updateUser)
+    if err != nil {
+        if errors.Is(err, repository.ErrUserNotFound) {
+            c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        } else {
+            log.Println("Error while updating user:", err)
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        }
+        return
+    }
+
+    // Devolver el usuario actualizado en la respuesta
+    c.JSON(http.StatusOK, updatedUser)
+}
+
+// @Tags users
+// @Summary Partially update an existing user
+// @Description Partially update an existing user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param   id    path    int64                   true  "User ID"
+// @Param   user  body    models.UserUpdateSchema true  "User Data"
+// @Success 200 {object} models.UserResponse
+// @Failure 400 {object} models.NotFountResponse
+// @Failure 404 {object} models.NotFountResponse
+// @Failure 500 {object} models.NotFountResponse
+// @Router /users/{id} [patch]
+func (usa *UserServiceApi) PartialUpdateUser(c *gin.Context) {
+    var updateUser models.UserUpdateSchema
+
+    // Obtener el ID del usuario desde los parámetros de la URL
+    id := c.Param("id")
+    userID, err := strconv.ParseInt(id, 10, 64)
+    if err != nil {
+        log.Println("Invalid user ID:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+
+    // Vincular el JSON recibido al modelo UserUpdateSchema
+    if err := c.ShouldBindJSON(&updateUser); err != nil {
+        log.Println("Error while binding JSON:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+        return
+    }
+
+    // Llamar al método PartialUpdateUser del repositorio
+    updatedUser, err := usa.repository.PartialUpdateUser(userID, updateUser)
+    if err != nil {
+        if errors.Is(err, repository.ErrUserNotFound) {
+            c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        } else {
+            log.Println("Error while updating user:", err)
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        }
+        return
+    }
+
+    // Devolver el usuario actualizado en la respuesta
+    c.JSON(http.StatusOK, updatedUser)
+}

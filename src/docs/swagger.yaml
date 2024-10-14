@@ -28,6 +28,17 @@ definitions:
       name:
         type: string
     type: object
+  models.UserUpdateSchema:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      lastname:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -114,6 +125,84 @@ paths:
           schema:
             $ref: '#/definitions/models.NotFountResponse'
       summary: Get user by ID
+      tags:
+      - users
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: Partially update an existing user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserUpdateSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+      summary: Partially update an existing user
+      tags:
+      - users
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserUpdateSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+      summary: Update an existing user
       tags:
       - users
       - users
