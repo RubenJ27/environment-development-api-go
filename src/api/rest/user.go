@@ -6,17 +6,18 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strconv"
+
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserRepository interface {
-	ReadUser(id int64) (*models.UserResponse, error)
-	DeleteUser(id int64) error
+	ReadUser(id uuid.UUID) (*models.UserResponse, error)
+	DeleteUser(id uuid.UUID) error
     CreateUser(user models.UserCreateSchema) (*models.UserResponse, error)
-    UpdateUser(id int64, user models.UserUpdateSchema) (*models.UserResponse, error)
-    PartialUpdateUser(id int64, user models.UserUpdateSchema) (*models.UserResponse, error)
+    UpdateUser(id uuid.UUID, user models.UserUpdateSchema) (*models.UserResponse, error)
+    PartialUpdateUser(id uuid.UUID, user models.UserUpdateSchema) (*models.UserResponse, error)
 }
 
 type UserServiceApi struct {
@@ -41,22 +42,20 @@ func (usa *UserServiceApi) ReadUser(c *gin.Context) {
     // Obtener el ID del usuario desde los parámetros de la URL
     userID := c.Param("id")
 
-	 // Convertir userID de string a int64
-	 id, err := strconv.ParseInt(userID, 10, 64)
-	 if err != nil {
+    // Convertir userID de string a uuid.UUID
+    id, err := uuid.Parse(userID)
+    if err != nil {
         log.Println("Error while parsing id:", err)
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
         return
     }
 
-	model, err := usa.repository.ReadUser(id)
-	if err != nil {
-		log.Println("Error while reading id:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-
+    model, err := usa.repository.ReadUser(id)
+    if err != nil {
+        log.Println("Error while reading id:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
     // Devolver el usuario en la respuesta
     c.JSON(http.StatusOK, model)
@@ -80,7 +79,7 @@ func (usa *UserServiceApi) DeleteUser(c *gin.Context) {
 	
 
     // Convertir userID de string a int64
-    id, err := strconv.ParseInt(userID, 10, 64)
+    id, err := uuid.Parse(userID)
     if err != nil {
         log.Println("Error while parsing id:", err)
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
@@ -144,7 +143,7 @@ func (usa *UserServiceApi) CreateUser(c *gin.Context) {
 // @Tags users
 // @Accept  json
 // @Produce  json
-// @Param   id    path    int64                   true  "User ID"
+// @Param   id    path    string                   true  "User ID"
 // @Param   user  body    models.UserUpdateSchema true  "User Data"
 // @Success 200 {object} models.UserResponse
 // @Failure 400 {object} models.NotFountResponse
@@ -156,7 +155,7 @@ func (usa *UserServiceApi) UpdateUser(c *gin.Context) {
 
     // Obtener el ID del usuario desde los parámetros de la URL
     id := c.Param("id")
-    userID, err := strconv.ParseInt(id, 10, 64)
+    userID, err := uuid.Parse(id)
     if err != nil {
         log.Println("Invalid user ID:", err)
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
@@ -192,7 +191,7 @@ func (usa *UserServiceApi) UpdateUser(c *gin.Context) {
 // @Tags users
 // @Accept  json
 // @Produce  json
-// @Param   id    path    int64                   true  "User ID"
+// @Param   id    path    string                   true  "User ID"
 // @Param   user  body    models.UserUpdateSchema true  "User Data"
 // @Success 200 {object} models.UserResponse
 // @Failure 400 {object} models.NotFountResponse
@@ -204,7 +203,7 @@ func (usa *UserServiceApi) PartialUpdateUser(c *gin.Context) {
 
     // Obtener el ID del usuario desde los parámetros de la URL
     id := c.Param("id")
-    userID, err := strconv.ParseInt(id, 10, 64)
+    userID, err := uuid.Parse(id)
     if err != nil {
         log.Println("Invalid user ID:", err)
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})

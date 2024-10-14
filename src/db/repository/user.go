@@ -6,6 +6,7 @@ import (
 	"development-environment-api-go-manager/src/models"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -18,7 +19,7 @@ func NewUserRepository(con *bun.DB) *user {
 	return &user{con: con,}
 }
 
-func (userRepository *user) ReadUser(id int64) (*models.UserResponse, error) {
+func (userRepository *user) ReadUser(id uuid.UUID) (*models.UserResponse, error) {
 	model := new(models.UserResponse)
 	
 	data := userRepository.con.NewSelect().
@@ -35,7 +36,7 @@ func (userRepository *user) ReadUser(id int64) (*models.UserResponse, error) {
 }
 
 
-func (userRepository *user) DeleteUser(id int64) error {
+func (userRepository *user) DeleteUser(id uuid.UUID) error {
     // Crear un modelo de usuario para la eliminación
     model := &models.UserResponse{ID: id}
 
@@ -61,8 +62,12 @@ func (userRepository *user) DeleteUser(id int64) error {
 }
 
 func (userRepository *user) CreateUser(newUser models.UserCreateSchema) (*models.UserResponse, error) {
+    // Generar un UUID para el nuevo usuario
+    userID := uuid.New()
+
     // Crear una instancia de models.UserEntity para la inserción en la base de datos
     user := &models.UserEntity{
+        ID:       userID,
         Name:     newUser.Name,
         Lastname: newUser.Lastname,
         Age:      newUser.Age,
@@ -87,7 +92,7 @@ func (userRepository *user) CreateUser(newUser models.UserCreateSchema) (*models
     return userResponse, nil
 }
 
-func (userRepository *user) UpdateUser(id int64, updateUser models.UserUpdateSchema) (*models.UserResponse, error) {
+func (userRepository *user) UpdateUser(id uuid.UUID, updateUser models.UserUpdateSchema) (*models.UserResponse, error) {
     // Verificar si el usuario existe
     user := &models.UserEntity{}
     err := userRepository.con.NewSelect().Model(user).Where("id = ?", id).Scan(context.Background())
@@ -123,7 +128,7 @@ func (userRepository *user) UpdateUser(id int64, updateUser models.UserUpdateSch
     return userResponse, nil
 }
 
-func (userRepository *user) PartialUpdateUser(id int64, updateUser models.UserUpdateSchema) (*models.UserResponse, error) {
+func (userRepository *user) PartialUpdateUser(id uuid.UUID, updateUser models.UserUpdateSchema) (*models.UserResponse, error) {
     // Verificar si el usuario existe
     user := &models.UserEntity{}
     err := userRepository.con.NewSelect().Model(user).Where("id = ?", id).Scan(context.Background())
@@ -143,6 +148,12 @@ func (userRepository *user) PartialUpdateUser(id int64, updateUser models.UserUp
         Set("email = COALESCE(?, email)", updateUser.Email).
         Where("id = ?", id).
         Exec(context.Background())
+    if err != nil {
+        return nil, err
+    }
+
+    // Volver a obtener el usuario actualizado de la base de datos
+    err = userRepository.con.NewSelect().Model(user).Where("id = ?", id).Scan(context.Background())
     if err != nil {
         return nil, err
     }

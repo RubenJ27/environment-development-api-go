@@ -1,11 +1,14 @@
 package models
 
-import "github.com/uptrace/bun"
+import (
+	"github.com/google/uuid"
+	"github.com/uptrace/bun"
+)
 
 // User define la estructura del usuario para la inserción en la base de datos
 type UserEntity struct {
     bun.BaseModel `bun:"table:public.users,alias:u"`
-    ID            int64  `bun:"id,pk,autoincrement"`
+    ID            uuid.UUID  `bun:"id,pk,autoincrement"`
     Name          string `bun:"name"`
     Lastname      string `bun:"lastname"`
     Age           int    `bun:"age"`
@@ -16,7 +19,7 @@ type UserEntity struct {
 type UserResponse struct {
     bun.BaseModel `bun:"table:public.users,alias:u" swaggerignore:"true"`
 
-    ID       int64   `json:"id,omitempty" bun:"id" description:"ID of the user"`
+    ID       uuid.UUID   `json:"id,omitempty" bun:"id" description:"ID of the user"`
     Name     string  `json:"name" bun:"name" description:"Name of the user"`
     Lastname string  `json:"lastname" bun:"lastname" description:"Lastname of the user"`
     Age      int     `json:"age" bun:"age" description:"Age of the user"`

@@ -115,7 +115,7 @@ const docTemplate = `{
                 "summary": "Update an existing user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -216,7 +216,7 @@ const docTemplate = `{
                 "summary": "Partially update an existing user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -297,7 +297,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "lastname": {
                     "type": "string"
