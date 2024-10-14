@@ -4,6 +4,17 @@ definitions:
       msg:
         type: string
     type: object
+  models.UserCreateSchema:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      lastname:
+        type: string
+      name:
+        type: string
+    type: object
   models.UserResponse:
     properties:
       age:
@@ -20,6 +31,37 @@ definitions:
 info:
   contact: {}
 paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCreateSchema'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+      summary: Create a new user
+      tags:
+      - users
+      - users
   /users/{id}:
     delete:
       consumes:
@@ -40,6 +82,10 @@ paths:
             $ref: '#/definitions/models.UserResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/models.NotFountResponse'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/models.NotFountResponse'
       summary: Delete user by ID

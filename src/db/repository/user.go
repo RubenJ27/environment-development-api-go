@@ -58,3 +58,30 @@ func (userRepository *user) DeleteUser(id int64) error {
 
     return nil
 }
+
+func (userRepository *user) CreateUser(newUser models.UserCreateSchema) (*models.UserResponse, error) {
+    // Crear una instancia de models.UserEntity para la inserción en la base de datos
+    user := &models.UserEntity{
+        Name:     newUser.Name,
+        Lastname: newUser.Lastname,
+        Age:      newUser.Age,
+        Email:    newUser.Email,
+    }
+
+    // Insertar el nuevo usuario en la base de datos
+    _, err := userRepository.con.NewInsert().Model(user).Exec(context.Background())
+    if err != nil {
+        return nil, err
+    }
+
+    // Crear una instancia de models.UserResponse para la respuesta
+    userResponse := &models.UserResponse{
+        ID:       user.ID,
+        Name:     user.Name,
+        Lastname: user.Lastname,
+        Age:      user.Age,
+        Email:    user.Email,
+    }
+
+    return userResponse, nil
+}

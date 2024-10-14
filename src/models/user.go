@@ -2,9 +2,19 @@ package models
 
 import "github.com/uptrace/bun"
 
+// User define la estructura del usuario para la inserción en la base de datos
+type UserEntity struct {
+    bun.BaseModel `bun:"table:public.users,alias:u"`
+    ID            int64  `bun:"id,pk,autoincrement"`
+    Name          string `bun:"name"`
+    Lastname      string `bun:"lastname"`
+    Age           int    `bun:"age"`
+    Email         string `bun:"email,unique"`
+}
+
 // UserSchema define la estructura completa del usuario
 type UserResponse struct {
-    bun.BaseModel `bun:"table:public.users,alias:u"`
+    bun.BaseModel `bun:"table:public.users,alias:u" swaggerignore:"true"`
 
     ID       int64   `json:"id,omitempty" bun:"id" description:"ID of the user"`
     Name     string  `json:"name" bun:"name" description:"Name of the user"`

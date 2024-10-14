@@ -13,6 +13,7 @@ import (
 type UserRepository interface {
 	ReadUser(id int64) (*models.UserResponse, error)
 	DeleteUser(id int64) error
+    CreateUser(user models.UserCreateSchema) (*models.UserResponse, error)
 }
 
 type UserServiceApi struct {
@@ -100,4 +101,37 @@ func (usa *UserServiceApi) DeleteUser(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
 
+
+// @Tags users
+// @Summary Create a new user
+// @Description Create a new user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param   user  body    models.UserCreateSchema  true  "User Data"
+// @Success 201 {object} models.UserResponse
+// @Failure 400 {object} models.NotFountResponse
+// @Failure 500 {object} models.NotFountResponse
+// @Router /users [post]
+func (usa *UserServiceApi) CreateUser(c *gin.Context) {
+    var newUser models.UserCreateSchema
+
+    // Vincular el JSON recibido al modelo UserCreateSchema
+    if err := c.ShouldBindJSON(&newUser); err != nil {
+        log.Println("Error while binding JSON:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+        return
+    }
+
+    // Llamar al método CreateUser del repositorio
+    createdUser, err := usa.repository.CreateUser(newUser)
+    if err != nil {
+        log.Println("Error while creating user:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        return
+    }
+
+    // Devolver el usuario creado en la respuesta
+    c.JSON(http.StatusCreated, createdUser)
+}
 

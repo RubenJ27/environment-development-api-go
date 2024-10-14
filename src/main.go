@@ -37,7 +37,13 @@ func main() {
     r := routes.GetServer(userRepo)
 
     // Configura la ruta para la documentación de Swagger
+
+    // Configura la ruta para obtener un usuario
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+    // Configura la ruta para creación de usuarios
+    r.POST("/users", userServiceApi.CreateUser)
+    
     // Configura la ruta para eliminar un usuario
     r.DELETE("/users/:id", userServiceApi.DeleteUser)
 
